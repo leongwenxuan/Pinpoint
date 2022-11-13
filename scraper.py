@@ -30,8 +30,38 @@ def CarousellScrape(keyword):
     # print(Cdata)
     return Cdata
     
-print(CarousellScrape("espresso machine"))
+# print(CarousellScrape("espresso machine"))
 
 
-# def AmazonSearch(keyword):
-#     url 
+def AmazonSearch(keyword):
+    Adata = []
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36'}
+
+    keyword = keyword.replace(" ","+")
+    keyword = keyword.replace("'","%27")
+    url = "https://www.amazon.sg/s?k=" + keyword 
+    page = requests.get(url, timeout=(5, 30), headers=headers).text
+    parse = BeautifulSoup(page, 'lxml')
+
+    products = parse.find_all('div', class_ = "sg-col-4-of-12 s-result-item s-asin sg-col-4-of-16 sg-col s-widget-spacing-small sg-col-4-of-20")
+    for product in products:
+        product_name =  product.find('span', class_ = 'a-size-base-plus a-color-base a-text-normal').text
+        product_price = product.find('span', class_ = 'a-offscreen').text
+        product_link = product.find('a', { 'class': 'a-link-normal s-underline-text s-underline-link-text s-link-style a-text-normal'})['href']
+
+        if product_price == None:
+            continue
+
+        Aprofile = {
+            "productname": product_name,
+            "link": product_link,
+            "productprice": product_price,
+        }
+        # print(product_name)
+        # print(product_price)
+        # print(product_link)
+        Adata.append(Aprofile)
+    return Adata
+
+print(AmazonSearch("Delonghi icona"))
+
